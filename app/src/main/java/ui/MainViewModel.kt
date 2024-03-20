@@ -12,6 +12,7 @@ import retrofit.ApiConfig
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import util.Event
 
 class MainViewModel : ViewModel() {
 
@@ -24,12 +25,15 @@ class MainViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    companion object{
+    private val _snackbarText = MutableLiveData<Event<String>>()
+    val snackbarText: LiveData<Event<String>> = _snackbarText
+
+    companion object {
         private const val TAG = "MainViewModel"
         private const val RESTAURANT_ID = "uewq1zg2zlskfw1e867"
     }
 
-    init{
+    init {
         findRestaurant()
     }
 
@@ -61,10 +65,14 @@ class MainViewModel : ViewModel() {
         _isLoading.value = true
         val client = ApiConfig.getApiService().postReview(RESTAURANT_ID, "Dicoding", review)
         client.enqueue(object : Callback<PostReviewResponse> {
-            override fun onResponse(call: Call<PostReviewResponse>, response: Response<PostReviewResponse>) {
+            override fun onResponse(
+                call: Call<PostReviewResponse>,
+                response: Response<PostReviewResponse>
+            ) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
                     _listReview.value = response.body()?.customerReviews
+                    _snackbarText.value = Event(response.body()?.message.toString())
                 } else {
                     Log.e(TAG, "onFailure: ${response.message()}")
                 }

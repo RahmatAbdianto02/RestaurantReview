@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.dicoding.restaurantreview.R
 import com.dicoding.restaurantreview.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import data.response.CustomerReviewsItem
 import data.response.PostReviewResponse
 import data.response.Restaurant
@@ -20,6 +21,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit.ApiConfig
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -51,12 +53,22 @@ class MainActivity : AppCompatActivity() {
             showLoading(it)
         }
 
+        mainViewModel.snackbarText.observe(this, {
+            it.getContentIfNotHandled()?.let { snackBarText ->
+                Snackbar.make(
+                    window.decorView.rootView,
+                    snackBarText,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
         binding.btnSend.setOnClickListener { view ->
             mainViewModel.postReview(binding.edReview.text.toString())
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
-    }
+    } // Ini adalah penutup yang benar untuk metode onCreate
 
     private fun setRestaurantData(restaurant: Restaurant) {
         binding.tvTitle.text = restaurant.name
@@ -76,4 +88,4 @@ class MainActivity : AppCompatActivity() {
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
-}
+} // Ini adalah penutup yang benar untuk kelas MainActivity
